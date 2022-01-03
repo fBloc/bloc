@@ -13,6 +13,8 @@
     + 部署RabbitMQ服务
     + 部署Minio服务
 * [部署bloc-server](#部署bloc-server)
+    + 非bloc-server开发者部署指南
+    + bloc-server开发者部署指南
 * [部署bloc-frontend](#部署bloc-frontend)
 * [部署bloc-client-go](#部署bloc-client-go)
 * [部署bloc-client-python](#部署bloc-client-python)
@@ -452,6 +454,7 @@ $ minikube service minio-read
 通过dashboard可以看到4个节点都是在线的
 
 ## 部署bloc-server
+### 非bloc-server开发者部署指南
 > 如果你准备开发的是各个语言的Client-SDK 或 frontend，那么bloc-server是稳定不需要变动
 
 1. **创建以下yaml文件**，假设叫`bloc-server.yaml`:
@@ -573,6 +576,183 @@ curl --location --request POST '127.0.0.1:59841/api/v1/login' \
 }
 ```
 就是成功啦！
+
+### bloc-server开发者开发/部署指南
+> 如果准备开发`bloc-server`，那么肯定不能使用上面的部署方式。上面部署了server就不会再有变动了！
+> 
+> 本地开发肯定需要一个方便开发且方便验证自己的改动的方式
+
+首先假设你在某目录`git clone`了`bloc-server`项目（假设最后项目路径是`/home/cool/bloc-server`）
+
+先来看看怎么运行起来：
+
+---
+
+1. **创建以下yaml文件**，假设叫`bloc-server-dev.yaml`:
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: bloc-server-dev
+  labels:
+    name: bloc-server-dev
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    role: bloc-server-dev
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bloc-server-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: bloc-server-dev
+      environment: test
+  template:
+    metadata:
+      labels:
+        role: bloc-server-dev
+        environment: test
+    spec:
+      containers:
+        - name: bloc-server-dev
+          image: billiepander/bloc_server_base:v0.2
+          workingDir: /app
+          command:
+          - /bin/ash
+          - -c
+          - "sleep infinity"
+          ports:
+            - containerPort: 8000
+              name: bloc-ser-dev
+          volumeMounts:
+          - mountPath: /app
+            name: bloc-server-dev-volume
+      volumes:
+      - name: bloc-server-dev-volume
+        hostPath:
+          path: /bloc-server
+```
+注意看下`command`，其并不是起了bloc-server服务哦！只是起了个不会退出的container
+
+2. 重要：比较不同的是，需要先将此目录`mount`进`minikube`：
+```shell
+minikube mount /home/cool/bloc-server:/bloc-server
+📁  Mounting host path /home/cool/bloc-server into VM as /bloc-server ...
+    ▪ Mount type:   
+    ▪ User ID:      docker
+    ▪ Group ID:     docker
+    ▪ Version:      9p2000.L
+    ▪ Message Size: 262144
+    ▪ Permissions:  755 (-rwxr-xr-x)
+    ▪ Options:      map[]
+    ▪ Bind Address: 127.0.0.1:63149
+🚀  Userspace file server: ufs starting
+✅  Successfully mounted /home/cool/bloc-server to /bloc-server
+
+📌  NOTE: This process must stay alive for the mount to be accessible ...
+```
+
+3. 使用以下命令**部署服务**：
+```shell
+$ kubectl create -f bloc-server-dev.yaml
+```
+
+4. 使用以下命令**检查服务是否启动完成**了：
+```shell
+$ kubectl get po
+NAME                              READY   STATUS    RESTARTS       AGE
+bloc-server-785784c8fd-mc4xb      1/1     Running   27 (65m ago)   20h
+bloc-server-dev-cbc445c84-cm7th   1/1     Running   0              31m
+minio-0                           1/1     Running   2 (66m ago)    28h
+minio-1                           1/1     Running   2 (66m ago)    28h
+minio-2                           1/1     Running   2 (66m ago)    28h
+minio-3                           1/1     Running   2 (66m ago)    28h
+mongo-0                           1/1     Running   2 (66m ago)    33h
+rabbit-0                          1/1     Running   2 (66m ago)    30h
+```
+在其中看到`bloc-server-dev-xxx`的`STATUS`值为`Running`就知道是启动成功了
+
+5. 真正的启动`bloc-server`：
+
+进入启动的服务里去启动`bloc-server`:
+```shell
+$ kubectl exec -it bloc-server-dev-cbc445c84-cm7th -- /bin/sh
+/app # go run cmd/server/main.go --app_name="local" --rabbitMQ_connection_str="blocRabbit:blocRabbitPasswd@rabbit-read:5672" --mongo_connec
+tion_str=":@mongo-read:27017" --minio_connection_str="pdblocminio:pdblocminiotony@minio-read:9000"
+2022/01/03 12:00:45 start http server at http://0.0.0.0:8000
+```
+看到上面的`... start http server at http://0.0.0.0:8000`才是bloc-server启动成功了！
+
+6. 服务**有效性检验**：
+既然是server，那么就通过访问其http api来验证下有没有部署成功吧
+
+首先还是通过`minikube service $service_name`来生成一个宿主机可以访问的地址：
+```shell
+$ minikube service bloc-server-dev
+|-----------|-----------------|-------------|--------------|
+| NAMESPACE |      NAME       | TARGET PORT |     URL      |
+|-----------|-----------------|-------------|--------------|
+| default   | bloc-server-dev |             | No node port |
+|-----------|-----------------|-------------|--------------|
+😿  service default/bloc-server-dev has no node port
+🏃  Starting tunnel for service bloc-server-dev.
+|-----------|-----------------|-------------|------------------------|
+| NAMESPACE |      NAME       | TARGET PORT |          URL           |
+|-----------|-----------------|-------------|------------------------|
+| default   | bloc-server-dev |             | http://127.0.0.1:64094 |
+|-----------|-----------------|-------------|------------------------|
+❗  Because you are using a Docker driver on darwin, the terminal needs to be open to run it.
+```
+
+OK，通过上面我们看到`bloc-server`的可访问地址是`http://127.0.0.1:64094`, 那么通过`curl`访问下登陆api试试：
+```shell
+$ curl --request GET http://127.0.0.1:64094/api/v1/bloc
+{"status_code":200,"status_msg":"","data":"Welcome aboard! May the Bloc be with you ~_~"}
+```
+可以看到访问的返回是：
+```json
+{
+    "status_code": 200,
+    "status_msg": "",
+    "data": "Welcome aboard! May the Bloc be with you ~_~"
+}
+```
+就是成功啦！
+
+7. **模拟改动了代码，想要验证效果**
+
+这里就进入上面访问的`/api/v1/bloc`对应的handler去做修改：
+![bloc-server-change-example](/static/bloc-server-change-example.png)
+可见，在返回里面加了字符："NEWNEWNEW"
+
+此时，回到上面的第5步，先通过`ctrl` + `c`停止上一次的运行，然后再次运行，而后再次通过第6步，就能够看到修改啦！
+
+停止并重启`bloc-server`
+```shell
+$ kubectl exec -it bloc-server-dev-cbc445c84-cm7th -- /bin/sh
+/app # go run cmd/server/main.go --app_name="local" --rabbitMQ_connection_str="blocRabbit:blocRabbitPasswd@rabbit-read:5672" --mongo_connec
+tion_str=":@mongo-read:27017" --minio_connection_str="pdblocminio:pdblocminiotony@minio-read:9000"
+2022/01/03 12:00:45 start http server at http://0.0.0.0:8000
+^Csignal: interrupt
+/app # go run cmd/server/main.go --app_name="local" --rabbitMQ_connection_str="blocRabbit:blocRabbitPasswd@rabbit-read:5672" --mongo_connec
+tion_str=":@mongo-read:27017" --minio_connection_str="pdblocminio:pdblocminiotony@minio-read:9000"
+2022/01/03 12:53:49 start http server at http://0.0.0.0:8000
+```
+
+验证更新：
+```shell
+~ » curl --request GET http://127.0.0.1:64094/api/v1/bloc
+{"status_code":200,"status_msg":"","data":"Welcome aboard! May the Bloc be with you ~_~NEWNEWNEW"}
+```
+可见返回是完成了更新的
+
+从而在本地能够较为方便的开发和验证修改
 
 ## 部署bloc-frontend
 #todo
