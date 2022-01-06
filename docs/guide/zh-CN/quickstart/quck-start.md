@@ -34,6 +34,7 @@ kubeconfig: Configured
 ## 原理说明
 此步骤搭建的环境其实就是在minikube中搭建了以下的环境：
 图1:
+
 ![bloc_user_deployment_base](/static/bloc_user_deployment_base.png)
 
 ## 实际搭建
@@ -268,7 +269,7 @@ serverPort := 56347
 
 先通过默认的用户名/密码: bloc/maytheforcebewithyou登陆。
 
-然后点击查看函数就能看到这两个函数已经成功注入啦：
+然后点击查看函数就能看到这两个函数已经成功注入啦(也就是图2的部分都完成啦)：
 - todo 补充前端显示此两个函数的图
 
 **此时开发者的工作就完了，接下来我们来模拟使用者是怎么在前端使用bloc的来看看效果**
