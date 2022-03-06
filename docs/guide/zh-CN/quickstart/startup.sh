@@ -1,5 +1,10 @@
 #!/bin/bash
 
+wget -q https://cdn.jsdelivr.net/gh/fBloc/bloc@main/docs/guide/zh-CN/quickstart/docker-compose.yml -O docker-compose.yml
+wget -q https://cdn.jsdelivr.net/gh/fBloc/bloc@main/docs/guide/zh-CN/quickstart/shutdown.sh -O shutdown.sh
+wget -q https://cdn.jsdelivr.net/gh/fBloc/bloc@main/docs/guide/zh-CN/quickstart/docker-compose-bloc-server-mac.yml -O docker-compose-bloc-server-mac.yml
+wget -q https://cdn.jsdelivr.net/gh/fBloc/bloc@main/docs/guide/zh-CN/quickstart/docker-compose-bloc-server-linux.yml -O docker-compose-bloc-server-linux.yml
+
 # check needed port not used
 used_ports=(8080, 27017, 5672, 15672, 9000, 8086)
 for element in ${used_ports[@]}
