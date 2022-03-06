@@ -1,0 +1,22 @@
+version: '3'  
+services: 
+  bloc-server:
+    image: billiepander/bloc_server:v0.2
+    container_name: bloc_server
+    network_mode: "host"
+    command: 
+      - "/app/main"
+      - "--app_name"
+      - "local"
+      - "--rabbitMQ_connection_str"
+      - "blocRabbit:blocRabbitPasswd@localhost:5672"
+      - "--minio_connection_str"
+      - "blocMinio:blocMinioPasswd@localhost:9000"
+      - "--mongo_connection_str"
+      - "blocMongo:blocMongoPasswd@localhost:27017"
+      - "--influxdb_connection_str"
+      - "blocInflux:blocInfluxPasswd@localhost:8086/?token=sqiQ-uFzig9aGPHxBm2w-dJzDss7kbhlw-x8JYOUeExFRH3VCD3J9yS37FPtcs85brldFVFZrMB84rn0F8Yuew==&organization=bloc"
+      - "--server_host"
+      - "0.0.0.0"
+      - "--server_port"
+      - "8080"
