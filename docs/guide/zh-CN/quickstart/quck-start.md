@@ -1,7 +1,7 @@
-> 本文目标: 介绍如何快速在本地搭建一个bloc环境用于试用bloc/作为本地开发环境
+> 本文目标: 介绍如何快速在本地搭建一个bloc本地测试/开发环境 & 部署demo示例代码来尝鲜试用bloc
 
 # 准备bloc基础环境
-> 前提：需要机器已安装了 `docker` 以及 `docker-compose` 命令。如果没有的话请先自行安装
+> 前提：需要机器已安装了 `docker` 以及 `docker-compose`。如果没有请先自行安装
 
 1. 切换到一个新的目录
 ```shell
@@ -177,9 +177,9 @@ if __name__ == "__main__":
 可见，在`Stock Monitor`分组下有函数`NewStockMonitor`和`PriceMonitor`, `Notice`分组下有函数`Sms`, `Tool`分组下有函数`Sleep`
 
 3. 安装项目依赖库
-每个人管理依赖的姿势可能不太一样，提供了以下文件作为支持：
+建议python版本为3.8及以上。由于每个人管理依赖的姿势可能不太一样，提供了以下文件作为支持：
 - 提供了最常用的`requirements.txt`文件，请以你舒服的姿势创建一个`virtualenv`并且安装依赖
-- 如果你也使用`poetry`的话，可基于`pyproject.toml`和`pyproject.toml`安装依赖吧
+- 如果你也使用`poetry`的话，可基于`pyproject.toml`和`pyproject.toml`安装依赖
 
 4. 将项目运行起来
 ```shell
@@ -190,6 +190,8 @@ if __name__ == "__main__":
 
 # 基础功能演示
 通过上面的步骤部署并运行了Python/Go示例项目（两个项目实现的函数功能完全一样）后，这时候我们来到前端ui看一下情况。
+
+> 注意：如果跳转到登录页面，默认的用户名: `bloc`, 密码: `maytheforcebewithyou`
 
 在浏览器打开[地址](http://localhost:8083/functions), 可看到步骤2里面的函数都显示在这里了, 如下图：
 ![functions](/static/functions.png)
