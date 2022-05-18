@@ -4,6 +4,6 @@ services:
     image: blocapp/bloc-web
     container_name: bloc_web
     environment:
-      - BASE_URL="http://127.0.0.1:8080"
+      - BASE_URL=http://127.0.0.1:8080
     ports:
       - "8083:80"
