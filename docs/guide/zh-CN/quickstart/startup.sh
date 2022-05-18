@@ -1,12 +1,12 @@
 #!/bin/bash
 
 wget -q https://cdn.jsdelivr.net/gh/fBloc/bloc@main/docs/guide/zh-CN/quickstart/docker-compose.yml -O docker-compose.yml
-wget -q https://cdn.jsdelivr.net/gh/fBloc/bloc@main/docs/guide/zh-CN/quickstart/shutdown.sh -O shutdown.sh
 wget -q https://cdn.jsdelivr.net/gh/fBloc/bloc@main/docs/guide/zh-CN/quickstart/docker-compose-bloc-server-mac.yml -O docker-compose-bloc-server-mac.yml
 wget -q https://cdn.jsdelivr.net/gh/fBloc/bloc@main/docs/guide/zh-CN/quickstart/docker-compose-bloc-server-linux.yml -O docker-compose-bloc-server-linux.yml
+wget -q https://cdn.jsdelivr.net/gh/fBloc/bloc@main/docs/guide/zh-CN/quickstart/shutdown.sh -O shutdown.sh
 
 # check needed port not used
-used_ports=(8080, 27017, 5672, 15672, 9000, 8086)
+used_ports=(8083, 8080, 27017, 5672, 15672, 9000, 8086)
 for element in ${used_ports[@]}
 do
 	Pid=`lsof -i:$element | awk '{print $1 "  " $2}'`
@@ -40,7 +40,7 @@ echo "    ready!"
 echo "start check whether minio is ready"
 while :
 do
-        RESULT=$(curl -s -o /dev/null -I -w "%{http_code}" 'http://localhost:9000/minio/health/live')
+    RESULT=$(curl -s -o /dev/null -I -w "%{http_code}" 'http://localhost:9000/minio/health/live')
 	if [[ $RESULT == "200" ]]
 	then
 		break
@@ -54,7 +54,7 @@ echo "    ready!"
 echo "start check whether rabbitMQ is ready"
 while :
 do
-        RESULT=$(curl -s -o /dev/null -I -w "%{http_code}" 'http://localhost:15672/api/overview')
+    RESULT=$(curl -s -o /dev/null -I -w "%{http_code}" 'http://localhost:15672/api/overview')
 	if [[ $RESULT == *"401"* ]]
 	then
 		break
@@ -77,7 +77,7 @@ do
 	fi
         sleep 1
 done
-echo "ready!"
+echo "    ready!"
 
 # start bloc-server
 echo "Starting bloc-server"
@@ -85,7 +85,12 @@ bloc_server_yaml=""
 if [[ "$OSTYPE" == "darwin"* ]]; then
 	# Mac OSX
 	bloc_server_yaml="docker-compose-bloc-server-mac.yml"
+elif [[ "$OSTYPE" == "linux"* ]]; then
+	# Linux
+	bloc_server_yaml="docker-compose-bloc-server-linux.yml"
 else
+	# tmp to just use linux. later should support windows
+	echo "your os $OSTYPE maybe not supported, use linux as default!"
 	bloc_server_yaml="docker-compose-bloc-server-linux.yml"
 fi
 
@@ -95,29 +100,47 @@ try_amount=5
 while [[ try_amount > 0 ]]
 do
 	docker-compose -f "$bloc_server_yaml" up -d
+	sleep 3
 	server_status=`docker-compose -f "$bloc_server_yaml" ps | grep bloc_server`
 	if [[ $server_status == *"Up"* ]]
 	then
-		echo "bloc-server is up"
+		echo "    bloc-server is up"
 		break
 	else
+		echo "    bloc-server is not up, retry"
 		try_amount=$((try_amount - 1))
-		sleep 10
-		docker-compose -f "$bloc_server_yaml" up -d
 	fi
 done
 
 echo "Checking whether bloc-server is valid"
 RESULT=$(curl -s --location --request GET 'http://localhost:8080/api/v1/bloc')
-if [[ $RESULT == *"Welcome aboard"* ]]
+if [[ $RESULT == *"Welcome aboard!"* ]]
 then
-	echo "bloc-server is valid. All ready!"
+	echo "    bloc-server is valid"
 else
-	echo "bloc-server is not ready"
+	echo "    bloc-server is not ready"
 	./shutdown.sh
 	exit 8
 fi
 
-# TODO 部署前端项目
+# start bloc-web
+bloc_web_yaml="docker-compose-bloc-web.yml"
+echo "Starting bloc_web, yaml file: $bloc_web_yaml"
+docker-compose -f "$bloc_web_yaml" up -d
+server_status=`docker-compose -f "$bloc_web_yaml" ps | grep bloc_web`
+if [[ $server_status == *"Up"* ]]
+then
+	echo "    bloc_web is up"
+fi
 
-# TODO 引导用户访问前端地址
+# Guide users to access the front-end address
+echo "******************************"
+echo "All ready, Visit http://localhost:8083/ to visit bloc UI"
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+	# Mac OSX
+	open http://localhost:8083/
+elif [[ "$OSTYPE" == "linux"* ]]; then
+	# Linux
+	xdg-open http://localhost:8083/
+fi

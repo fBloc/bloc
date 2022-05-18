@@ -11,7 +11,7 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=blocMongoPasswd
     restart: always
   rabbit:
-    image: rabbitmq:3.9.11-management
+    image: rabbitmq:3.9.11-management-alpine
     container_name: rabbit_bloc
     ports:
       - "5672:5672"

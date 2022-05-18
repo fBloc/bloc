@@ -1,7 +1,7 @@
 version: '3'  
 services: 
   bloc-server:
-    image: billiepander/bloc_server:v0.2
+    image: blocapp/bloc-server:0.1
     container_name: bloc_server
     ports:
       - "8080:8080"
