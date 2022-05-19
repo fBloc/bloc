@@ -4,12 +4,12 @@
 infraFileLength=`cat docker-compose.yml | wc -l | xargs`
 
 if [[ $infraFileLength == *"No such file"* ]]; then  # not exist then download
-	wget -q https://raw.githubusercontent.com/fBloc/bloc/main/docs/guide/zh-CN/quickstart/docker-compose.yml -O docker-compose.yml
+	wget -q https://raw.githubusercontent.com/fBloc/bloc/main/docker-compose.yml -O docker-compose.yml
 	infraFileLength=`cat docker-compose.yml | wc -l | xargs`
 fi
 
 if [[ $infraFileLength == "0" ]]; then  # download not valid, reminder user to download handly
-	echo "Download docker-compose.yml fail. plz download https://raw.githubusercontent.com/fBloc/bloc/main/docs/guide/zh-CN/quickstart/docker-compose.yml to your current directory and name it to docker-compose.yml"
+	echo "Download docker-compose.yml fail. plz download https://raw.githubusercontent.com/fBloc/bloc/main/docker-compose.yml to your current directory and name it to docker-compose.yml"
 	exit 8
 fi
 echo "docker-compose.yml exist"
@@ -18,12 +18,12 @@ echo "docker-compose.yml exist"
 macServerComposeFileLineAmount=`cat docker-compose-bloc-server-mac.yml | wc -l | xargs`
 
 if [[ $macServerComposeFileLineAmount == *"No such file"* ]]; then  # not exist then download
-	wget -q https://raw.githubusercontent.com/fBloc/bloc/main/docs/guide/zh-CN/quickstart/docker-compose-bloc-server-mac.yml -O docker-compose-bloc-server-mac.yml
+	wget -q https://raw.githubusercontent.com/fBloc/bloc/main/docker-compose-bloc-server-mac.yml -O docker-compose-bloc-server-mac.yml
 	macServerComposeFileLineAmount=`cat docker-compose-bloc-server-mac.yml | wc -l | xargs`
 fi
 
 if [[ $macServerComposeFileLineAmount == "0" ]]; then
-	echo "Download docker-compose-bloc-server-mac.yml fail. plz download https://raw.githubusercontent.com/fBloc/bloc/main/docs/guide/zh-CN/quickstart/docker-compose-bloc-server-mac.yml to your current directory and name it to docker-compose-bloc-server-mac.yml"
+	echo "Download docker-compose-bloc-server-mac.yml fail. plz download https://raw.githubusercontent.com/fBloc/bloc/main/docker-compose-bloc-server-mac.yml to your current directory and name it to docker-compose-bloc-server-mac.yml"
 	exit 8
 fi
 echo "docker-compose-bloc-server-mac.yml exist"
@@ -31,12 +31,12 @@ echo "docker-compose-bloc-server-mac.yml exist"
 # make sure docker-compose-bloc-server-linux.yml exist
 linuxServerComposeFileLineAmount=`cat docker-compose-bloc-server-linux.yml | wc -l | xargs`
 if [[ $linuxServerComposeFileLineAmount == *"No such file"* ]]; then  # not exist then download
-	wget -q https://raw.githubusercontent.com/fBloc/bloc/main/docs/guide/zh-CN/quickstart/docker-compose-bloc-server-linux.yml -O docker-compose-bloc-server-linux.yml
+	wget -q https://raw.githubusercontent.com/fBloc/bloc/main/docker-compose-bloc-server-linux.yml -O docker-compose-bloc-server-linux.yml
 	linuxServerComposeFileLineAmount=`cat docker-compose-bloc-server-linux.yml | wc -l | xargs`
 fi
 
 if [[ $linuxServerComposeFileLineAmount == "0" ]]; then
-	echo "Download docker-compose-bloc-server-linux.yml fail. plz download https://raw.githubusercontent.com/fBloc/bloc/main/docs/guide/zh-CN/quickstart/docker-compose-bloc-server-linux.yml to your current directory and name it to docker-compose-bloc-server-linux.yml"
+	echo "Download docker-compose-bloc-server-linux.yml fail. plz download https://raw.githubusercontent.com/fBloc/bloc/main/docker-compose-bloc-server-linux.yml to your current directory and name it to docker-compose-bloc-server-linux.yml"
 	exit 8
 fi
 echo "docker-compose-bloc-server-linux.yml exist"
@@ -44,12 +44,12 @@ echo "docker-compose-bloc-server-linux.yml exist"
 # make sure shutdown.sh exist
 shutdownShFileLineAmount=`cat shutdown.sh | wc -l | xargs`
 if [[ $shutdownShFileLineAmount == *"No such file"* ]]; then  # not exist then download
-	wget -q https://raw.githubusercontent.com/fBloc/bloc/main/docs/guide/zh-CN/quickstart/shutdown.sh -O shutdown.sh
+	wget -q https://raw.githubusercontent.com/fBloc/bloc/main/shutdown.sh -O shutdown.sh
 	shutdownShFileLineAmount=`cat shutdown.sh | wc -l | xargs`
 fi
 
 if [[ $shutdownShFileLineAmount == "0" ]]; then
-	echo "Download shutdown.sh fail. plz download https://raw.githubusercontent.com/fBloc/bloc/main/docs/guide/zh-CN/quickstart/shutdown.sh to your current directory and name it to shutdown.sh"
+	echo "Download shutdown.sh fail. plz download https://raw.githubusercontent.com/fBloc/bloc/main/shutdown.sh to your current directory and name it to shutdown.sh"
 	exit 8
 fi
 echo "shutdown.sh exist"
@@ -186,12 +186,8 @@ fi
 
 # Guide users to access the front-end address
 echo "******************************"
-echo "All ready, Visit http://localhost:8083/ to visit bloc UI"
-
-if [[ "$OSTYPE" == "darwin"* ]]; then
-	# Mac OSX
-	open http://localhost:8083/
-elif [[ "$OSTYPE" == "linux"* ]]; then
-	# Linux
-	xdg-open http://localhost:8083/
-fi
+echo "All ready!"
+echo "bloc-web address http://localhost:8083; default user: bloc; default password: maytheforcebewithyou"
+echo "bloc-backend-server address http://localhost:8080"
+echo "rabbitMQ address 127.0.0.1:5672; user blocRabbit, password blocRabbitPasswd"
+echo "******************************"
