@@ -153,7 +153,7 @@ do
 	docker-compose -f "$bloc_server_yaml" up -d
 	sleep 3
 	server_status=`docker-compose -f "$bloc_server_yaml" ps | grep bloc_server`
-	if [[ $server_status == *"Up"* ]]
+	if [[ $server_status == *"Up"* ]] || [[ $server_status == *"running"* ]]
 	then
 		echo "    bloc-server is up"
 		break
@@ -178,8 +178,8 @@ fi
 bloc_web_yaml="docker-compose-bloc-web.yml"
 echo "Starting bloc_web, yaml file: $bloc_web_yaml"
 docker-compose -f "$bloc_web_yaml" up -d
-server_status=`docker-compose -f "$bloc_web_yaml" ps | grep bloc_web`
-if [[ $server_status == *"Up"* ]]
+web_status=`docker-compose -f "$bloc_web_yaml" ps | grep bloc_web`
+if [[ $web_status == *"Up"* ]] || [[ $web_status == *"running"* ]]
 then
 	echo "    bloc_web is up"
 fi
