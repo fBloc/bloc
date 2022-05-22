@@ -3,7 +3,7 @@
 
 通过组合函数构建、运行你的工作流程。
 
-![DD](https://fbloc.github.io/img/shot.png)
+![DD](https://docs.blocapp.xyz/img/shot.png)
 
 ## 目录
 - [背景](#背景)
@@ -31,7 +31,7 @@
 
 ## 项目文档
 
-如果你想要更多地了解本项目，[请移步这里](https://fbloc.github.io/)
+如果你想要更多地了解本项目，[请移步这里](https://docs.blocapp.xyz/)
 
 ## license
 [MIT](LICENSE)
